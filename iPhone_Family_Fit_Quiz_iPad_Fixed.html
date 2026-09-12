@@ -1,0 +1,2498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#f5f5f7" />
+<title>Which iPhone Fits Me? — Family Quiz</title>
+<style>
+  :root{
+    --bg:#f5f5f7;
+    --card:#ffffff;
+    --text:#1d1d1f;
+    --muted:#6e6e73;
+    --line:#d2d2d7;
+    --accent:#0071e3;
+    --accent-soft:#e8f3ff;
+    --good:#187a3d;
+    --warn:#9b5c00;
+    --shadow:0 8px 30px rgba(0,0,0,.07);
+    --radius:22px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.45;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:20px 14px 80px}
+  .hero{
+    background:linear-gradient(145deg,#fff 20%,#edf6ff 100%);
+    border:1px solid rgba(0,0,0,.06);
+    border-radius:28px;
+    padding:28px 22px;
+    box-shadow:var(--shadow);
+    margin-bottom:16px;
+  }
+  h1{font-size:clamp(30px,6vw,52px);line-height:1.02;letter-spacing:-.04em;margin:0 0 12px}
+  h2{font-size:26px;letter-spacing:-.02em;margin:0 0 10px}
+  h3{font-size:19px;margin:0 0 8px}
+  p{margin:6px 0 0}
+  .lede{font-size:18px;color:#3a3a3c;max-width:740px}
+  .small{font-size:13px;color:var(--muted)}
+  .pill{
+    display:inline-block;
+    background:#eef2f6;
+    border-radius:999px;
+    padding:6px 10px;
+    font-size:12px;
+    font-weight:700;
+    margin:4px 4px 0 0;
+  }
+  .progress-shell{
+    position:sticky;top:0;z-index:30;
+    background:rgba(245,245,247,.88);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    padding:10px 0 8px;
+  }
+  .progress-row{display:flex;align-items:center;gap:10px}
+  .progress{height:10px;background:#dedee3;border-radius:999px;overflow:hidden;flex:1}
+  .progress > div{height:100%;width:0;background:var(--accent);transition:width .2s ease}
+  #progressText{font-size:12px;color:var(--muted);min-width:72px;text-align:right}
+  .card{
+    background:var(--card);
+    border:1px solid rgba(0,0,0,.07);
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow:0 3px 14px rgba(0,0,0,.035);
+    margin:14px 0;
+  }
+  .guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .guide{
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:16px;
+    background:#fff;
+  }
+  .guide strong{font-size:16px}
+  .guide .emoji{font-size:25px;display:block;margin-bottom:6px}
+  details{
+    margin-top:10px;
+    border-top:1px solid #ececf0;
+    padding-top:9px;
+  }
+  summary{cursor:pointer;font-weight:700;color:var(--accent)}
+  .section-title{margin-top:28px;margin-bottom:7px;padding:0 3px}
+  .section-title p{color:var(--muted);margin:0}
+  .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  label.field{font-size:14px;font-weight:700;display:block}
+  input,select,textarea{
+    width:100%;
+    margin-top:6px;
+    border:1px solid #c7c7cc;
+    background:#fff;
+    border-radius:13px;
+    padding:13px 12px;
+    font:inherit;
+    font-weight:500;
+    color:var(--text);
+    outline:none;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,113,227,.12)}
+  .qnum{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+  .question{font-size:19px;font-weight:760;letter-spacing:-.01em;margin:4px 0}
+  .explain{color:var(--muted);font-size:14px;margin-top:5px}
+  .bubbles{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:8px;
+    margin-top:14px;
+  }
+  .bubble input{position:absolute;opacity:0;pointer-events:none}
+  .bubble label{
+    min-height:72px;
+    border:1.5px solid #c7c7cc;
+    border-radius:18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:8px 5px;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+    background:#fff;
+    transition:.15s ease;
+    user-select:none;
+  }
+  .bubble label:hover{border-color:#8abdf0;background:#f7fbff}
+  .bubble input:checked + label{
+    border-color:var(--accent);
+    background:var(--accent-soft);
+    box-shadow:0 0 0 2px rgba(0,113,227,.08);
+  }
+  .code{font-size:18px;font-weight:850;color:var(--accent)}
+  .blabel{font-size:11px;line-height:1.15;color:#424245;margin-top:4px}
+  .choices3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .choices4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .choices6{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .choiceLong label{min-height:82px}
+  .callout{
+    border-left:4px solid var(--accent);
+    background:#f2f8ff;
+    padding:12px 14px;
+    border-radius:10px;
+    margin-top:12px;
+    font-size:14px;
+  }
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  button{
+    border:0;border-radius:14px;padding:13px 18px;font:inherit;font-weight:800;
+    cursor:pointer;
+  }
+  .primary{background:var(--accent);color:#fff}
+  .secondary{background:#e8e8ed;color:#1d1d1f}
+  .ghost{background:#fff;border:1px solid #c7c7cc}
+  .result{
+    display:none;
+    background:#fff;
+    border-radius:var(--radius);
+    padding:20px;
+    margin-top:18px;
+    box-shadow:var(--shadow);
+  }
+  pre{
+    white-space:pre-wrap;
+    word-break:break-word;
+    background:#f6f6f8;
+    border:1px solid #dddde2;
+    border-radius:14px;
+    padding:14px;
+    max-height:440px;
+    overflow:auto;
+    font-size:12px;
+  }
+  .required-star{color:#d70015}
+  .errorbox{
+    display:none;background:#fff2f2;border:1px solid #ffb6b6;color:#8b0000;
+    border-radius:14px;padding:12px 14px;margin:12px 0;font-weight:650;
+  }
+  .footer{color:var(--muted);font-size:12px;margin-top:28px;text-align:center}
+  .priority-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  @media (max-width:700px){
+    .guide-grid,.field-grid,.priority-grid{grid-template-columns:1fr}
+    .bubbles{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}
+    .bubbles .bubble:last-child:nth-child(odd){grid-column:1 / -1}
+    .choices3{grid-template-columns:1fr}
+    .choices4,.choices6{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .card{padding:17px 14px}
+    .wrap{padding-left:10px;padding-right:10px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<noscript>
+  <section class="card" style="border:2px solid #d70015">
+    <h2>Open this page in Safari</h2>
+    <p>Your current viewer has JavaScript turned off. The questions are visible, but copying/sharing the final export requires Safari or another full web browser.</p>
+  </section>
+</noscript>
+
+
+<section class="hero">
+  <div class="pill">Family iPhone Quiz</div>
+  <div class="pill">iPhone 18 Pro • 18 Pro Max • iPhone Duo</div>
+  <h1>Which iPhone actually fits you?</h1>
+  <p class="lede">Tap the bubbles that sound most like you. You do <strong>not</strong> need to know phone jargon. At the end, export the answers as plain text and send them back for a personalized assessment.</p>
+  <p class="small">This quiz does not automatically pick a winner so your answers are not biased by seeing a recommendation first.</p>
+</section>
+
+<div class="progress-shell">
+  <div class="progress-row">
+    <div class="progress"><div id="progressBar"></div></div>
+    <div id="progressText">0% answered</div>
+  </div>
+</div>
+
+<section class="card">
+  <h2>Before you start: the three choices</h2>
+  <p class="small">These are the differences that matter most. Tap “More detail” if you want an explanation.</p>
+  <div class="guide-grid" style="margin-top:14px">
+    <div class="guide">
+      <span class="emoji">📱</span>
+      <strong>iPhone 18 Pro</strong>
+      <p>Traditional iPhone, <b>6.3-inch screen</b>, lighter and easier to hold. Same A20 Pro chip and main Pro camera system as the Pro Max.</p>
+      <details><summary>More detail</summary>
+        <p class="small">Best for someone who wants Pro-level speed/cameras but does not want the biggest phone. Apple rates it for up to 24 hours of typical use and 36 hours of video playback.</p>
+      </details>
+    </div>
+    <div class="guide">
+      <span class="emoji">🔋</span>
+      <strong>iPhone 18 Pro Max</strong>
+      <p>Traditional iPhone, <b>6.9-inch screen</b>. Bigger/heavier than the Pro, but has the strongest battery life of the three for heavy all-day use.</p>
+      <details><summary>More detail</summary>
+        <p class="small">Same A20 Pro chip and Pro camera system as the 18 Pro. Apple rates it for up to 30 hours of typical use and 45 hours of video playback.</p>
+      </details>
+    </div>
+    <div class="guide">
+      <span class="emoji">📖</span>
+      <strong>iPhone Duo</strong>
+      <p>A folding iPhone: <b>5.4-inch outer screen</b> when closed and a <b>7.6-inch inner screen</b> when opened. Built for multitasking and a mini-tablet feel.</p>
+      <details><summary>More detail</summary>
+        <p class="small">It uses the same A20 Pro family chip, can show two apps side by side, supports Apple Pencil (USB-C), and can prop itself up. The tradeoff is that it uses Touch ID instead of Face ID and does not have the Pro models’ dedicated long-distance camera.</p>
+      </details>
+    </div>
+    <div class="guide">
+      <span class="emoji">🕰️</span>
+      <strong>What is StandBy?</strong>
+      <p>StandBy turns your iPhone into a <b>clock, photo frame, weather/calendar display, or widget screen</b> when you set it down.</p>
+      <details><summary>Why Duo is different</summary>
+        <p class="small">On a normal supported iPhone, StandBy is mainly designed for when the phone is charging and resting on its side. On iPhone Duo, Apple says StandBy can work on the inner or outer screen <b>even when the phone is not charging</b>. That makes it useful on a desk, counter, nightstand, hotel room, or while traveling.</p>
+      </details>
+    </div>
+    <div class="guide">
+      <span class="emoji">🔭</span>
+      <strong>What does “zoom camera” mean?</strong>
+      <p>It means taking a clearer photo of something <b>far away</b> without walking closer — sports, wildlife, a person on a stage, mountains, signs, etc.</p>
+      <details><summary>Which phones are better?</summary>
+        <p class="small">The 18 Pro and Pro Max have a dedicated 48MP long-distance camera. Duo has excellent main and wide cameras, but relies more on cropping/digital zoom for distant subjects.</p>
+      </details>
+    </div>
+    <div class="guide">
+      <span class="emoji">🌡️</span>
+      <strong>What are “thermals”?</strong>
+      <p>Thermals simply means <b>how well the phone handles heat</b>. A hot phone can dim its screen or slow itself down to cool off.</p>
+      <details><summary>Why it matters</summary>
+        <p class="small">Heat can build during GPS navigation, gaming, video recording, charging, hotspot use, AI tasks, or heavy use in hot weather. All three new models improve cooling, but the Pro models are especially designed for sustained performance.</p>
+      </details>
+    </div>
+  </div>
+  <div class="callout"><b>Same on all three:</b> 256GB, 512GB, 1TB, and 2TB storage options; A20 Pro-class performance; 120Hz ProMotion; bright 3000-nit outdoor displays; USB-C; 25W MagSafe/Qi2 wireless charging; modern Apple Intelligence/Siri AI features.</div>
+</section>
+
+<section class="card" id="profile">
+  <h2>About you & your current phone</h2>
+  <div class="field-grid">
+    <label class="field">Your name <span class="required-star">*</span>
+      <input id="name" type="text" placeholder="First name" autocomplete="name" />
+    </label>
+    <label class="field">Current phone model <span class="required-star">*</span>
+      <input id="currentPhone" type="text" placeholder="Example: iPhone 15 Pro Max" />
+    </label>
+    <label class="field">Current phone screen size
+      <select id="currentSize">
+        <option value="">Choose one</option>
+        <option>Small / compact (about 6.1 inches or smaller)</option>
+        <option>Medium (about 6.2–6.4 inches)</option>
+        <option>Large / Max (about 6.7–6.9 inches)</option>
+        <option>Foldable</option>
+        <option>I know the exact size</option>
+        <option>I don’t know</option>
+      </select>
+    </label>
+    <label class="field">Exact screen size, if known
+      <input id="exactSize" type="text" inputmode="decimal" placeholder='Example: 6.7"' />
+    </label>
+    <label class="field">Current phone storage capacity <span class="required-star">*</span>
+      <select id="storageTotal">
+        <option value="">Choose one</option>
+        <option>64GB</option><option>128GB</option><option>256GB</option>
+        <option>512GB</option><option>1TB</option><option>2TB</option>
+        <option>I don’t know</option>
+      </select>
+    </label>
+    <label class="field">How much storage are you using now?
+      <input id="storageUsed" type="text" placeholder="Example: 187GB used" />
+      <span class="small">On iPhone: Settings → General → iPhone Storage.</span>
+    </label>
+    <label class="field">Battery Health, if known
+      <input id="batteryHealth" type="text" inputmode="numeric" placeholder="Example: 87%" />
+    </label>
+    <label class="field">Main use
+      <select id="mainUse">
+        <option value="">Choose one</option>
+        <option>Mostly personal</option>
+        <option>Mostly work/business</option>
+        <option>Mostly school</option>
+        <option>Heavy mix of work/school and personal</option>
+      </select>
+    </label>
+  </div>
+</section>
+
+<div id="quiz">
+<div class="section-title">
+<h2>1. Everyday use</h2>
+<p>How you actually use your phone matters more than a spec sheet.</p>
+</div>
+
+<section class="card" id="Q01">
+  <div class="qnum">Q01</div>
+  <div class="question">How much do you browse the web, research things, shop, compare products, or read long pages on your phone?</div>
+  <div class="explain">A larger screen helps when you spend a lot of time reading or comparing information.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q01_0" name="Q01" value="A" data-label="Not much / not important">
+  <label for="Q01_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q01_1" name="Q01" value="A-B" data-label="A little">
+  <label for="Q01_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q01_2" name="Q01" value="B" data-label="Medium">
+  <label for="Q01_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q01_3" name="Q01" value="B-C" data-label="Quite a lot">
+  <label for="Q01_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q01_4" name="Q01" value="C" data-label="Very much / very important">
+  <label for="Q01_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q02">
+  <div class="qnum">Q02</div>
+  <div class="question">How useful would it be to see TWO apps at the same time?</div>
+  <div class="explain">Example: Messages next to Safari, Maps next to Messages, email next to a PDF, or two web pages side by side. Duo can do true Split View.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q02_0" name="Q02" value="A" data-label="Not much / not important">
+  <label for="Q02_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q02_1" name="Q02" value="A-B" data-label="A little">
+  <label for="Q02_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q02_2" name="Q02" value="B" data-label="Medium">
+  <label for="Q02_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q02_3" name="Q02" value="B-C" data-label="Quite a lot">
+  <label for="Q02_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q02_4" name="Q02" value="C" data-label="Very much / very important">
+  <label for="Q02_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q03">
+  <div class="qnum">Q03</div>
+  <div class="question">How much video do you watch on your phone?</div>
+  <div class="explain">YouTube, Netflix, sports, TikTok, movies, shows, or long videos.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q03_0" name="Q03" value="A" data-label="Not much / not important">
+  <label for="Q03_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q03_1" name="Q03" value="A-B" data-label="A little">
+  <label for="Q03_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q03_2" name="Q03" value="B" data-label="Medium">
+  <label for="Q03_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q03_3" name="Q03" value="B-C" data-label="Quite a lot">
+  <label for="Q03_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q03_4" name="Q03" value="C" data-label="Very much / very important">
+  <label for="Q03_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q04">
+  <div class="qnum">Q04</div>
+  <div class="question">How often do you read PDFs, school/work documents, spreadsheets, forms, or long emails on your phone?</div>
+  <div class="explain">The Duo’s open screen gives these much more room.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q04_0" name="Q04" value="A" data-label="Not much / not important">
+  <label for="Q04_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q04_1" name="Q04" value="A-B" data-label="A little">
+  <label for="Q04_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q04_2" name="Q04" value="B" data-label="Medium">
+  <label for="Q04_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q04_3" name="Q04" value="B-C" data-label="Quite a lot">
+  <label for="Q04_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q04_4" name="Q04" value="C" data-label="Very much / very important">
+  <label for="Q04_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q05">
+  <div class="qnum">Q05</div>
+  <div class="question">How much do you play demanding games on your phone?</div>
+  <div class="explain">Think console-style 3D games rather than simple puzzle or card games.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q05_0" name="Q05" value="A" data-label="Never">
+  <label for="Q05_0">
+    <span class="code">A</span>
+    <span class="blabel">Never</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q05_1" name="Q05" value="A-B" data-label="Rarely">
+  <label for="Q05_1">
+    <span class="code">A-B</span>
+    <span class="blabel">Rarely</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q05_2" name="Q05" value="B" data-label="Sometimes">
+  <label for="Q05_2">
+    <span class="code">B</span>
+    <span class="blabel">Sometimes</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q05_3" name="Q05" value="B-C" data-label="Often">
+  <label for="Q05_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Often</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q05_4" name="Q05" value="C" data-label="A lot">
+  <label for="Q05_4">
+    <span class="code">C</span>
+    <span class="blabel">A lot</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q06">
+  <div class="qnum">Q06</div>
+  <div class="question">How much do you use your phone for work or school when you are away from a computer?</div>
+  <div class="explain">This helps determine whether the Duo’s mini-tablet style productivity would actually matter.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q06_0" name="Q06" value="A" data-label="Not much / not important">
+  <label for="Q06_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q06_1" name="Q06" value="A-B" data-label="A little">
+  <label for="Q06_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q06_2" name="Q06" value="B" data-label="Medium">
+  <label for="Q06_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q06_3" name="Q06" value="B-C" data-label="Quite a lot">
+  <label for="Q06_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q06_4" name="Q06" value="C" data-label="Very much / very important">
+  <label for="Q06_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+<div class="section-title">
+<h2>2. Screen &amp; physical design</h2>
+<p>This section separates the smaller Pro, battery-focused Pro Max, and folding Duo.</p>
+</div>
+
+<section class="card" id="Q07">
+  <div class="qnum">Q07</div>
+  <div class="question">How important is having the biggest possible screen when you WANT one?</div>
+  <div class="explain">Duo opens to 7.6 inches. Pro Max is 6.9 inches. Pro is 6.3 inches.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q07_0" name="Q07" value="A" data-label="Not much / not important">
+  <label for="Q07_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q07_1" name="Q07" value="A-B" data-label="A little">
+  <label for="Q07_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q07_2" name="Q07" value="B" data-label="Medium">
+  <label for="Q07_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q07_3" name="Q07" value="B-C" data-label="Quite a lot">
+  <label for="Q07_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q07_4" name="Q07" value="C" data-label="Very much / very important">
+  <label for="Q07_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q08">
+  <div class="qnum">Q08</div>
+  <div class="question">How important is a phone being smaller, lighter, and easier to use one-handed?</div>
+  <div class="explain">The 18 Pro is the lightest and most compact of these three. Duo is compact in height when closed, but thicker.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q08_0" name="Q08" value="A" data-label="Not much / not important">
+  <label for="Q08_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q08_1" name="Q08" value="A-B" data-label="A little">
+  <label for="Q08_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q08_2" name="Q08" value="B" data-label="Medium">
+  <label for="Q08_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q08_3" name="Q08" value="B-C" data-label="Quite a lot">
+  <label for="Q08_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q08_4" name="Q08" value="C" data-label="Very much / very important">
+  <label for="Q08_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q09">
+  <div class="qnum">Q09</div>
+  <div class="question">If you owned a Duo, how often do you think you would open it to use the big inner screen?</div>
+  <div class="explain">The Duo makes the most sense if you would actually open it rather than mostly using the small outer screen.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q09_0" name="Q09" value="A" data-label="Almost never">
+  <label for="Q09_0">
+    <span class="code">A</span>
+    <span class="blabel">Almost never</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q09_1" name="Q09" value="A-B" data-label="Occasionally">
+  <label for="Q09_1">
+    <span class="code">A-B</span>
+    <span class="blabel">Occasionally</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q09_2" name="Q09" value="B" data-label="About half the time">
+  <label for="Q09_2">
+    <span class="code">B</span>
+    <span class="blabel">About half the time</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q09_3" name="Q09" value="B-C" data-label="Most of the time">
+  <label for="Q09_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Most of the time</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q09_4" name="Q09" value="C" data-label="Constantly">
+  <label for="Q09_4">
+    <span class="code">C</span>
+    <span class="blabel">Constantly</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q10">
+  <div class="qnum">Q10</div>
+  <div class="question">How useful would it be if your phone could prop itself up for videos, FaceTime, photos, recipes, or a desk display?</div>
+  <div class="explain">Duo’s hinge lets it stand at useful angles without a separate phone stand.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q10_0" name="Q10" value="A" data-label="Not much / not important">
+  <label for="Q10_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q10_1" name="Q10" value="A-B" data-label="A little">
+  <label for="Q10_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q10_2" name="Q10" value="B" data-label="Medium">
+  <label for="Q10_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q10_3" name="Q10" value="B-C" data-label="Quite a lot">
+  <label for="Q10_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q10_4" name="Q10" value="C" data-label="Very much / very important">
+  <label for="Q10_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q11">
+  <div class="qnum">Q11</div>
+  <div class="question">How useful would StandBy be WITHOUT needing to plug the phone in?</div>
+  <div class="explain">StandBy can show a clock, photos, weather, calendar, or widgets. Duo can enter StandBy on its inner or outer screen even while unplugged.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q11_0" name="Q11" value="A" data-label="Not much / not important">
+  <label for="Q11_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q11_1" name="Q11" value="A-B" data-label="A little">
+  <label for="Q11_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q11_2" name="Q11" value="B" data-label="Medium">
+  <label for="Q11_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q11_3" name="Q11" value="B-C" data-label="Quite a lot">
+  <label for="Q11_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q11_4" name="Q11" value="C" data-label="Very much / very important">
+  <label for="Q11_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q12">
+  <div class="qnum">Q12</div>
+  <div class="question">Would you use an Apple Pencil on your phone for notes, signing, drawing, or marking up documents?</div>
+  <div class="explain">Duo supports Apple Pencil (USB-C). The 18 Pro and Pro Max do not.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q12_0" name="Q12" value="A" data-label="No">
+  <label for="Q12_0">
+    <span class="code">A</span>
+    <span class="blabel">No</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q12_1" name="Q12" value="A-B" data-label="Probably not">
+  <label for="Q12_1">
+    <span class="code">A-B</span>
+    <span class="blabel">Probably not</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q12_2" name="Q12" value="B" data-label="Maybe">
+  <label for="Q12_2">
+    <span class="code">B</span>
+    <span class="blabel">Maybe</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q12_3" name="Q12" value="B-C" data-label="Probably">
+  <label for="Q12_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Probably</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q12_4" name="Q12" value="C" data-label="Definitely">
+  <label for="Q12_4">
+    <span class="code">C</span>
+    <span class="blabel">Definitely</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q13">
+  <div class="qnum">Q13</div>
+  <div class="question">How much would a thicker phone when folded bother you?</div>
+  <div class="explain">Duo is very thin when open, but because it folds in half it is thicker when closed.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q13_0" name="Q13" value="A" data-label="Not much / not important">
+  <label for="Q13_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q13_1" name="Q13" value="A-B" data-label="A little">
+  <label for="Q13_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q13_2" name="Q13" value="B" data-label="Medium">
+  <label for="Q13_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q13_3" name="Q13" value="B-C" data-label="Quite a lot">
+  <label for="Q13_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q13_4" name="Q13" value="C" data-label="Very much / very important">
+  <label for="Q13_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q14">
+  <div class="qnum">Q14</div>
+  <div class="question">How much would a flexible inner screen, visible fold/crease, and hinge make you nervous?</div>
+  <div class="explain">Apple designed Duo for durability, but a foldable still has more moving/flexible parts than a traditional iPhone.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q14_0" name="Q14" value="A" data-label="Not much / not important">
+  <label for="Q14_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q14_1" name="Q14" value="A-B" data-label="A little">
+  <label for="Q14_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q14_2" name="Q14" value="B" data-label="Medium">
+  <label for="Q14_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q14_3" name="Q14" value="B-C" data-label="Quite a lot">
+  <label for="Q14_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q14_4" name="Q14" value="C" data-label="Very much / very important">
+  <label for="Q14_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+<div class="section-title">
+<h2>3. Battery, heat &amp; speed</h2>
+<p>You do not need to know benchmarks. Answer based on what annoys you today.</p>
+</div>
+
+<section class="card" id="Q15">
+  <div class="qnum">Q15</div>
+  <div class="question">How often does your current phone reach about 20% battery or less before you are done for the day?</div>
+  <div class="explain">This is one of the strongest reasons to consider the Pro Max.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q15_0" name="Q15" value="A" data-label="Almost never">
+  <label for="Q15_0">
+    <span class="code">A</span>
+    <span class="blabel">Almost never</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q15_1" name="Q15" value="A-B" data-label="Rarely">
+  <label for="Q15_1">
+    <span class="code">A-B</span>
+    <span class="blabel">Rarely</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q15_2" name="Q15" value="B" data-label="Sometimes">
+  <label for="Q15_2">
+    <span class="code">B</span>
+    <span class="blabel">Sometimes</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q15_3" name="Q15" value="B-C" data-label="Often">
+  <label for="Q15_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Often</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q15_4" name="Q15" value="C" data-label="Almost every day">
+  <label for="Q15_4">
+    <span class="code">C</span>
+    <span class="blabel">Almost every day</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q16">
+  <div class="qnum">Q16</div>
+  <div class="question">How important is getting the longest possible battery life?</div>
+  <div class="explain">Apple rates the 18 Pro Max highest for typical mixed use. Duo battery life varies more depending on which display you use.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q16_0" name="Q16" value="A" data-label="Not much / not important">
+  <label for="Q16_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q16_1" name="Q16" value="A-B" data-label="A little">
+  <label for="Q16_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q16_2" name="Q16" value="B" data-label="Medium">
+  <label for="Q16_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q16_3" name="Q16" value="B-C" data-label="Quite a lot">
+  <label for="Q16_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q16_4" name="Q16" value="C" data-label="Very much / very important">
+  <label for="Q16_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q17">
+  <div class="qnum">Q17</div>
+  <div class="question">How often does your current phone feel hot, dim its screen, or seem to slow down from heat?</div>
+  <div class="explain">GPS, charging, gaming, video, hotspot use, camera use, and hot weather can cause this.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q17_0" name="Q17" value="A" data-label="Never">
+  <label for="Q17_0">
+    <span class="code">A</span>
+    <span class="blabel">Never</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q17_1" name="Q17" value="A-B" data-label="Rarely">
+  <label for="Q17_1">
+    <span class="code">A-B</span>
+    <span class="blabel">Rarely</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q17_2" name="Q17" value="B" data-label="Sometimes">
+  <label for="Q17_2">
+    <span class="code">B</span>
+    <span class="blabel">Sometimes</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q17_3" name="Q17" value="B-C" data-label="Often">
+  <label for="Q17_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Often</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q17_4" name="Q17" value="C" data-label="Very often">
+  <label for="Q17_4">
+    <span class="code">C</span>
+    <span class="blabel">Very often</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q18">
+  <div class="qnum">Q18</div>
+  <div class="question">How important is staying cool during long, demanding use?</div>
+  <div class="explain">This is “thermal performance.” It matters most during gaming, navigation, hotspot use, recording video, or heavy workloads.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q18_0" name="Q18" value="A" data-label="Not much / not important">
+  <label for="Q18_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q18_1" name="Q18" value="A-B" data-label="A little">
+  <label for="Q18_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q18_2" name="Q18" value="B" data-label="Medium">
+  <label for="Q18_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q18_3" name="Q18" value="B-C" data-label="Quite a lot">
+  <label for="Q18_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q18_4" name="Q18" value="C" data-label="Very much / very important">
+  <label for="Q18_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q19">
+  <div class="qnum">Q19</div>
+  <div class="question">How often are you away from a charger for long stretches?</div>
+  <div class="explain">Examples: work sites, travel days, school, sporting events, hiking, road trips, or long appointments.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q19_0" name="Q19" value="A" data-label="Not much / not important">
+  <label for="Q19_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q19_1" name="Q19" value="A-B" data-label="A little">
+  <label for="Q19_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q19_2" name="Q19" value="B" data-label="Medium">
+  <label for="Q19_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q19_3" name="Q19" value="B-C" data-label="Quite a lot">
+  <label for="Q19_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q19_4" name="Q19" value="C" data-label="Very much / very important">
+  <label for="Q19_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q20">
+  <div class="qnum">Q20</div>
+  <div class="question">How important is faster charging when you only have a short time to plug in?</div>
+  <div class="explain">The 18 Pro models are especially strong for quick wired top-ups; all three support faster 25W MagSafe/Qi2 wireless charging.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q20_0" name="Q20" value="A" data-label="Not much / not important">
+  <label for="Q20_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q20_1" name="Q20" value="A-B" data-label="A little">
+  <label for="Q20_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q20_2" name="Q20" value="B" data-label="Medium">
+  <label for="Q20_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q20_3" name="Q20" value="B-C" data-label="Quite a lot">
+  <label for="Q20_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q20_4" name="Q20" value="C" data-label="Very much / very important">
+  <label for="Q20_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+<div class="section-title">
+<h2>4. Camera &amp; video</h2>
+<p>No camera jargon required.</p>
+</div>
+
+<section class="card" id="Q21">
+  <div class="qnum">Q21</div>
+  <div class="question">How important is having the best overall camera system available?</div>
+  <div class="explain">If photos and videos are a major priority, the Pro and Pro Max camera system has important advantages.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q21_0" name="Q21" value="A" data-label="Not much / not important">
+  <label for="Q21_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q21_1" name="Q21" value="A-B" data-label="A little">
+  <label for="Q21_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q21_2" name="Q21" value="B" data-label="Medium">
+  <label for="Q21_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q21_3" name="Q21" value="B-C" data-label="Quite a lot">
+  <label for="Q21_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q21_4" name="Q21" value="C" data-label="Very much / very important">
+  <label for="Q21_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q22">
+  <div class="qnum">Q22</div>
+  <div class="question">How often do you want a CLEAR picture of something far away?</div>
+  <div class="explain">Examples: sports from the stands, wildlife, concerts, a person on a stage, mountains, signs, or distant buildings. The Pro models have a dedicated long-distance camera.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q22_0" name="Q22" value="A" data-label="Almost never">
+  <label for="Q22_0">
+    <span class="code">A</span>
+    <span class="blabel">Almost never</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q22_1" name="Q22" value="A-B" data-label="Rarely">
+  <label for="Q22_1">
+    <span class="code">A-B</span>
+    <span class="blabel">Rarely</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q22_2" name="Q22" value="B" data-label="Sometimes">
+  <label for="Q22_2">
+    <span class="code">B</span>
+    <span class="blabel">Sometimes</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q22_3" name="Q22" value="B-C" data-label="Often">
+  <label for="Q22_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Often</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q22_4" name="Q22" value="C" data-label="Very often">
+  <label for="Q22_4">
+    <span class="code">C</span>
+    <span class="blabel">Very often</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q23">
+  <div class="qnum">Q23</div>
+  <div class="question">How important are low-light photos and photos of moving people, pets, or sports?</div>
+  <div class="explain">The Pro camera system is the safer choice for someone who wants the most capable photography setup.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q23_0" name="Q23" value="A" data-label="Not much / not important">
+  <label for="Q23_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q23_1" name="Q23" value="A-B" data-label="A little">
+  <label for="Q23_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q23_2" name="Q23" value="B" data-label="Medium">
+  <label for="Q23_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q23_3" name="Q23" value="B-C" data-label="Quite a lot">
+  <label for="Q23_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q23_4" name="Q23" value="C" data-label="Very much / very important">
+  <label for="Q23_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q24">
+  <div class="qnum">Q24</div>
+  <div class="question">How much do you record high-quality video?</div>
+  <div class="explain">Think family events, travel, sports, social content, school/work projects, or serious video creation.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q24_0" name="Q24" value="A" data-label="Not much / not important">
+  <label for="Q24_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q24_1" name="Q24" value="A-B" data-label="A little">
+  <label for="Q24_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q24_2" name="Q24" value="B" data-label="Medium">
+  <label for="Q24_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q24_3" name="Q24" value="B-C" data-label="Quite a lot">
+  <label for="Q24_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q24_4" name="Q24" value="C" data-label="Very much / very important">
+  <label for="Q24_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q25">
+  <div class="qnum">Q25</div>
+  <div class="question">Do you use advanced photo/video tools such as RAW photos, ProRes, manual-style controls, or editing workflows?</div>
+  <div class="explain">If you have never heard of these, choose A — that means they probably should not affect your decision.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q25_0" name="Q25" value="A" data-label="Never / don’t know them">
+  <label for="Q25_0">
+    <span class="code">A</span>
+    <span class="blabel">Never / don’t know them</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q25_1" name="Q25" value="A-B" data-label="Almost never">
+  <label for="Q25_1">
+    <span class="code">A-B</span>
+    <span class="blabel">Almost never</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q25_2" name="Q25" value="B" data-label="Sometimes">
+  <label for="Q25_2">
+    <span class="code">B</span>
+    <span class="blabel">Sometimes</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q25_3" name="Q25" value="B-C" data-label="Often">
+  <label for="Q25_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Often</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q25_4" name="Q25" value="C" data-label="Very important to me">
+  <label for="Q25_4">
+    <span class="code">C</span>
+    <span class="blabel">Very important to me</span>
+  </label>
+</div>
+  </div>
+</section>
+<div class="section-title">
+<h2>5. Unlocking, durability &amp; daily convenience</h2>
+<p>Small details can become big daily annoyances.</p>
+</div>
+
+<section class="card" id="Q26">
+  <div class="qnum">Q26</div>
+  <div class="question">How important is Face ID — unlocking just by looking at your phone?</div>
+  <div class="explain">18 Pro and Pro Max use Face ID. Duo uses Touch ID in the side button instead.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q26_0" name="Q26" value="A" data-label="Not much / not important">
+  <label for="Q26_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q26_1" name="Q26" value="A-B" data-label="A little">
+  <label for="Q26_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q26_2" name="Q26" value="B" data-label="Medium">
+  <label for="Q26_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q26_3" name="Q26" value="B-C" data-label="Quite a lot">
+  <label for="Q26_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q26_4" name="Q26" value="C" data-label="Very much / very important">
+  <label for="Q26_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q27">
+  <div class="qnum">Q27</div>
+  <div class="question">How comfortable would you be using your fingerprint on the side button instead of Face ID?</div>
+  <div class="explain">That is how Duo unlocks and approves Apple Pay.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q27_0" name="Q27" value="A" data-label="I’d strongly dislike it">
+  <label for="Q27_0">
+    <span class="code">A</span>
+    <span class="blabel">I’d strongly dislike it</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q27_1" name="Q27" value="A-B" data-label="Prefer Face ID">
+  <label for="Q27_1">
+    <span class="code">A-B</span>
+    <span class="blabel">Prefer Face ID</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q27_2" name="Q27" value="B" data-label="Either is fine">
+  <label for="Q27_2">
+    <span class="code">B</span>
+    <span class="blabel">Either is fine</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q27_3" name="Q27" value="B-C" data-label="Fingerprint sounds good">
+  <label for="Q27_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Fingerprint sounds good</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q27_4" name="Q27" value="C" data-label="I prefer fingerprint">
+  <label for="Q27_4">
+    <span class="code">C</span>
+    <span class="blabel">I prefer fingerprint</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q28">
+  <div class="qnum">Q28</div>
+  <div class="question">How important is the customizable Action button?</div>
+  <div class="explain">It can launch things like Silent Mode, Camera, Flashlight, Voice Memo, Translate, a Shortcut, and more. The 18 Pro models have it; Duo does not.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q28_0" name="Q28" value="A" data-label="Not much / not important">
+  <label for="Q28_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q28_1" name="Q28" value="A-B" data-label="A little">
+  <label for="Q28_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q28_2" name="Q28" value="B" data-label="Medium">
+  <label for="Q28_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q28_3" name="Q28" value="B-C" data-label="Quite a lot">
+  <label for="Q28_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q28_4" name="Q28" value="C" data-label="Very much / very important">
+  <label for="Q28_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q29">
+  <div class="qnum">Q29</div>
+  <div class="question">How important is having the simplest, most proven physical design possible?</div>
+  <div class="explain">Traditional phones have no hinge or folding inner screen. This matters if reliability is your top concern.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q29_0" name="Q29" value="A" data-label="Not much / not important">
+  <label for="Q29_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q29_1" name="Q29" value="A-B" data-label="A little">
+  <label for="Q29_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q29_2" name="Q29" value="B" data-label="Medium">
+  <label for="Q29_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q29_3" name="Q29" value="B-C" data-label="Quite a lot">
+  <label for="Q29_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q29_4" name="Q29" value="C" data-label="Very much / very important">
+  <label for="Q29_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q30">
+  <div class="qnum">Q30</div>
+  <div class="question">How worried are you about buying Apple’s first-generation foldable iPhone?</div>
+  <div class="explain">Even if it is covered by AppleCare, some people prefer to wait for later generations.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q30_0" name="Q30" value="A" data-label="Not much / not important">
+  <label for="Q30_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q30_1" name="Q30" value="A-B" data-label="A little">
+  <label for="Q30_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q30_2" name="Q30" value="B" data-label="Medium">
+  <label for="Q30_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q30_3" name="Q30" value="B-C" data-label="Quite a lot">
+  <label for="Q30_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q30_4" name="Q30" value="C" data-label="Very much / very important">
+  <label for="Q30_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q31">
+  <div class="qnum">Q31</div>
+  <div class="question">How important is fitting normally on car wireless chargers and common phone mounts?</div>
+  <div class="explain">Duo’s short, wider folded shape may fit or align differently on some fixed charging pads.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q31_0" name="Q31" value="A" data-label="Not much / not important">
+  <label for="Q31_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q31_1" name="Q31" value="A-B" data-label="A little">
+  <label for="Q31_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q31_2" name="Q31" value="B" data-label="Medium">
+  <label for="Q31_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q31_3" name="Q31" value="B-C" data-label="Quite a lot">
+  <label for="Q31_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q31_4" name="Q31" value="C" data-label="Very much / very important">
+  <label for="Q31_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q32">
+  <div class="qnum">Q32</div>
+  <div class="question">How long do you normally keep a phone before replacing it?</div>
+  <div class="explain">Keeping a phone 4–6 years gives long-term durability more weight.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q32_0" name="Q32" value="A" data-label="About 1 year">
+  <label for="Q32_0">
+    <span class="code">A</span>
+    <span class="blabel">About 1 year</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q32_1" name="Q32" value="A-B" data-label="1–2 years">
+  <label for="Q32_1">
+    <span class="code">A-B</span>
+    <span class="blabel">1–2 years</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q32_2" name="Q32" value="B" data-label="2–3 years">
+  <label for="Q32_2">
+    <span class="code">B</span>
+    <span class="blabel">2–3 years</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q32_3" name="Q32" value="B-C" data-label="3–4 years">
+  <label for="Q32_3">
+    <span class="code">B-C</span>
+    <span class="blabel">3–4 years</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q32_4" name="Q32" value="C" data-label="4+ years">
+  <label for="Q32_4">
+    <span class="code">C</span>
+    <span class="blabel">4+ years</span>
+  </label>
+</div>
+  </div>
+</section>
+<div class="section-title">
+<h2>6. Storage needs</h2>
+<p>All three models offer 256GB, 512GB, 1TB, and 2TB. These questions help choose the right amount.</p>
+</div>
+
+<section class="card" id="Q33">
+  <div class="qnum">Q33</div>
+  <div class="question">How much do you take photos and especially videos?</div>
+  <div class="explain">4K video can use a lot of storage over time.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q33_0" name="Q33" value="A" data-label="Not much / not important">
+  <label for="Q33_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q33_1" name="Q33" value="A-B" data-label="A little">
+  <label for="Q33_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q33_2" name="Q33" value="B" data-label="Medium">
+  <label for="Q33_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q33_3" name="Q33" value="B-C" data-label="Quite a lot">
+  <label for="Q33_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q33_4" name="Q33" value="C" data-label="Very much / very important">
+  <label for="Q33_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q34">
+  <div class="qnum">Q34</div>
+  <div class="question">How many large games, apps, or creative apps do you keep installed?</div>
+  <div class="explain">Large games and professional apps can each use many gigabytes.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q34_0" name="Q34" value="A" data-label="Very few">
+  <label for="Q34_0">
+    <span class="code">A</span>
+    <span class="blabel">Very few</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q34_1" name="Q34" value="A-B" data-label="A few">
+  <label for="Q34_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A few</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q34_2" name="Q34" value="B" data-label="Several">
+  <label for="Q34_2">
+    <span class="code">B</span>
+    <span class="blabel">Several</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q34_3" name="Q34" value="B-C" data-label="Many">
+  <label for="Q34_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Many</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q34_4" name="Q34" value="C" data-label="A lot / huge games">
+  <label for="Q34_4">
+    <span class="code">C</span>
+    <span class="blabel">A lot / huge games</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q35">
+  <div class="qnum">Q35</div>
+  <div class="question">How much media do you download to keep OFFLINE?</div>
+  <div class="explain">Examples: movies, TV episodes, music, podcasts, maps, files, or course material for when you have weak/no service.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q35_0" name="Q35" value="A" data-label="Not much / not important">
+  <label for="Q35_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q35_1" name="Q35" value="A-B" data-label="A little">
+  <label for="Q35_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q35_2" name="Q35" value="B" data-label="Medium">
+  <label for="Q35_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q35_3" name="Q35" value="B-C" data-label="Quite a lot">
+  <label for="Q35_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q35_4" name="Q35" value="C" data-label="Very much / very important">
+  <label for="Q35_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q36">
+  <div class="qnum">Q36</div>
+  <div class="question">How strongly do you want to avoid managing or deleting storage for the next few years?</div>
+  <div class="explain">If you never want to think about space, buying more storage up front can make sense.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q36_0" name="Q36" value="A" data-label="Not much / not important">
+  <label for="Q36_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q36_1" name="Q36" value="A-B" data-label="A little">
+  <label for="Q36_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q36_2" name="Q36" value="B" data-label="Medium">
+  <label for="Q36_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q36_3" name="Q36" value="B-C" data-label="Quite a lot">
+  <label for="Q36_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q36_4" name="Q36" value="C" data-label="Very much / very important">
+  <label for="Q36_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q37">
+  <div class="qnum">Q37</div>
+  <div class="question">How much do you rely on cloud storage such as iCloud Photos, Google Photos, OneDrive, or streaming instead of keeping everything locally?</div>
+  <div class="explain">More cloud use can reduce the amount of built-in phone storage you need.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q37_0" name="Q37" value="A" data-label="Almost none">
+  <label for="Q37_0">
+    <span class="code">A</span>
+    <span class="blabel">Almost none</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q37_1" name="Q37" value="A-B" data-label="A little">
+  <label for="Q37_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q37_2" name="Q37" value="B" data-label="Some">
+  <label for="Q37_2">
+    <span class="code">B</span>
+    <span class="blabel">Some</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q37_3" name="Q37" value="B-C" data-label="A lot">
+  <label for="Q37_3">
+    <span class="code">B-C</span>
+    <span class="blabel">A lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q37_4" name="Q37" value="C" data-label="Almost everything">
+  <label for="Q37_4">
+    <span class="code">C</span>
+    <span class="blabel">Almost everything</span>
+  </label>
+</div>
+  </div>
+</section>
+<div class="section-title">
+<h2>7. What kind of upgrade do you want?</h2>
+<p>This is where preference matters.</p>
+</div>
+
+<section class="card" id="Q38">
+  <div class="qnum">Q38</div>
+  <div class="question">How important is having genuinely NEW technology that feels different from your current phone?</div>
+  <div class="explain">Duo changes the physical way you use an iPhone. Pro and Pro Max are much more familiar.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q38_0" name="Q38" value="A" data-label="Not much / not important">
+  <label for="Q38_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q38_1" name="Q38" value="A-B" data-label="A little">
+  <label for="Q38_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q38_2" name="Q38" value="B" data-label="Medium">
+  <label for="Q38_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q38_3" name="Q38" value="B-C" data-label="Quite a lot">
+  <label for="Q38_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q38_4" name="Q38" value="C" data-label="Very much / very important">
+  <label for="Q38_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q39">
+  <div class="qnum">Q39</div>
+  <div class="question">How important is getting the safest, least-compromised all-around choice?</div>
+  <div class="explain">This means prioritizing battery, cameras, durability, familiar controls, and fewer first-generation tradeoffs.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q39_0" name="Q39" value="A" data-label="Not much / not important">
+  <label for="Q39_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q39_1" name="Q39" value="A-B" data-label="A little">
+  <label for="Q39_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q39_2" name="Q39" value="B" data-label="Medium">
+  <label for="Q39_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q39_3" name="Q39" value="B-C" data-label="Quite a lot">
+  <label for="Q39_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q39_4" name="Q39" value="C" data-label="Very much / very important">
+  <label for="Q39_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q40">
+  <div class="qnum">Q40</div>
+  <div class="question">How much does price matter when choosing between the three?</div>
+  <div class="explain">A higher answer means you care more about avoiding extra cost for features you may not use.</div>
+  <div class="bubbles">
+    
+<div class="bubble">
+  <input type="radio" id="Q40_0" name="Q40" value="A" data-label="Not much / not important">
+  <label for="Q40_0">
+    <span class="code">A</span>
+    <span class="blabel">Not much / not important</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q40_1" name="Q40" value="A-B" data-label="A little">
+  <label for="Q40_1">
+    <span class="code">A-B</span>
+    <span class="blabel">A little</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q40_2" name="Q40" value="B" data-label="Medium">
+  <label for="Q40_2">
+    <span class="code">B</span>
+    <span class="blabel">Medium</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q40_3" name="Q40" value="B-C" data-label="Quite a lot">
+  <label for="Q40_3">
+    <span class="code">B-C</span>
+    <span class="blabel">Quite a lot</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q40_4" name="Q40" value="C" data-label="Very much / very important">
+  <label for="Q40_4">
+    <span class="code">C</span>
+    <span class="blabel">Very much / very important</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q41">
+  <div class="qnum">Q41</div>
+  <div class="question">Which description sounds most like you?</div>
+  <div class="explain">There is no right answer.</div>
+  <div class="bubbles choices3 choiceLong">
+    
+<div class="bubble">
+  <input type="radio" id="Q41_0" name="Q41" value="A" data-label="I want the familiar iPhone idea, just better">
+  <label for="Q41_0">
+    <span class="code">A</span>
+    <span class="blabel">I want the familiar iPhone idea, just better</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q41_1" name="Q41" value="B" data-label="I’m in the middle">
+  <label for="Q41_1">
+    <span class="code">B</span>
+    <span class="blabel">I’m in the middle</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q41_2" name="Q41" value="C" data-label="I want something that feels completely new">
+  <label for="Q41_2">
+    <span class="code">C</span>
+    <span class="blabel">I want something that feels completely new</span>
+  </label>
+</div>
+  </div>
+</section>
+
+<section class="card" id="Q42">
+  <div class="qnum">Q42</div>
+  <div class="question">Before seeing any assessment, which phone are you naturally leaning toward?</div>
+  <div class="explain">This does not decide the answer; it just tells us your instinct.</div>
+  <div class="bubbles choices3 choiceLong">
+    
+<div class="bubble">
+  <input type="radio" id="Q42_0" name="Q42" value="A" data-label="iPhone 18 Pro">
+  <label for="Q42_0">
+    <span class="code">A</span>
+    <span class="blabel">iPhone 18 Pro</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q42_1" name="Q42" value="B" data-label="iPhone 18 Pro Max">
+  <label for="Q42_1">
+    <span class="code">B</span>
+    <span class="blabel">iPhone 18 Pro Max</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q42_2" name="Q42" value="C" data-label="iPhone Duo">
+  <label for="Q42_2">
+    <span class="code">C</span>
+    <span class="blabel">iPhone Duo</span>
+  </label>
+</div>
+<div class="bubble">
+  <input type="radio" id="Q42_3" name="Q42" value="D" data-label="Truly undecided">
+  <label for="Q42_3">
+    <span class="code">D</span>
+    <span class="blabel">Truly undecided</span>
+  </label>
+</div>
+  </div>
+</section>
+</div>
+
+<section class="card">
+  <h2>Your top 3 priorities</h2>
+  <p class="small">Pick the three things you care about most. Do not select the same item twice.</p>
+  <div class="priority-grid">
+    <label class="field">#1 most important
+      <select id="p1" class="priority"></select>
+    </label>
+    <label class="field">#2
+      <select id="p2" class="priority"></select>
+    </label>
+    <label class="field">#3
+      <select id="p3" class="priority"></select>
+    </label>
+  </div>
+  <label class="field" style="margin-top:14px">Anything else we should know?
+    <textarea id="notes" rows="4" placeholder="Examples: I travel constantly; I take lots of kids’ sports photos; I hate heavy phones; I use my phone for work PDFs; I want the newest tech; I never want to charge during the day..."></textarea>
+  </label>
+</section>
+
+<div class="errorbox" id="errorBox"></div>
+
+<section class="card">
+  <h2>Export your answers</h2>
+  <p>When finished, tap <b>Build My Plain-Text Results</b>. Then copy, share, or download the text and send it back for assessment.</p>
+  <div class="actions">
+    <button class="primary" id="buildBtn">Build My Plain-Text Results</button>
+    <button class="secondary" id="clearBtn" type="button">Clear Quiz</button>
+  </div>
+</section>
+
+<section class="result" id="resultBox">
+  <h2>Results ready</h2>
+  <p class="small">This is plain text, so it can be pasted into a message, email, or ChatGPT.</p>
+  <pre id="resultText"></pre>
+  <div class="actions">
+    <button class="primary" id="copyBtn">Copy Results</button>
+    <button class="secondary" id="shareBtn">Share Results</button>
+    <button class="ghost" id="downloadBtn">Download .txt</button>
+  </div>
+</section>
+
+<p class="footer">Feature facts in this quiz were checked against Apple’s iPhone 18 Pro/Pro Max and iPhone Duo technical specifications and Apple’s September 2026 iPhone Duo announcement. Actual battery life varies by use.</p>
+
+</div>
+
+<script>
+const SCALE = [
+  {code:"A", label:"Not much / not important"},
+  {code:"A-B", label:"A little"},
+  {code:"B", label:"Medium"},
+  {code:"B-C", label:"Quite a lot"},
+  {code:"C", label:"Very much / very important"}
+];
+
+const questions = [
+  // Everyday use
+  {section:"1. Everyday use", subtitle:"How you actually use your phone matters more than a spec sheet.",
+   id:"Q01", q:"How much do you browse the web, research things, shop, compare products, or read long pages on your phone?", e:"A larger screen helps when you spend a lot of time reading or comparing information.", type:"scale"},
+  {id:"Q02", q:"How useful would it be to see TWO apps at the same time?", e:"Example: Messages next to Safari, Maps next to Messages, email next to a PDF, or two web pages side by side. Duo can do true Split View.", type:"scale"},
+  {id:"Q03", q:"How much video do you watch on your phone?", e:"YouTube, Netflix, sports, TikTok, movies, shows, or long videos.", type:"scale"},
+  {id:"Q04", q:"How often do you read PDFs, school/work documents, spreadsheets, forms, or long emails on your phone?", e:"The Duo’s open screen gives these much more room.", type:"scale"},
+  {id:"Q05", q:"How much do you play demanding games on your phone?", e:"Think console-style 3D games rather than simple puzzle or card games.", 
+   type:"custom", opts:[["A","Never"],["A-B","Rarely"],["B","Sometimes"],["B-C","Often"],["C","A lot"]]},
+  {id:"Q06", q:"How much do you use your phone for work or school when you are away from a computer?", e:"This helps determine whether the Duo’s mini-tablet style productivity would actually matter.", type:"scale"},
+
+  // Screen/form
+  {section:"2. Screen & physical design", subtitle:"This section separates the smaller Pro, battery-focused Pro Max, and folding Duo.",
+   id:"Q07", q:"How important is having the biggest possible screen when you WANT one?", e:"Duo opens to 7.6 inches. Pro Max is 6.9 inches. Pro is 6.3 inches.", type:"scale"},
+  {id:"Q08", q:"How important is a phone being smaller, lighter, and easier to use one-handed?", e:"The 18 Pro is the lightest and most compact of these three. Duo is compact in height when closed, but thicker.", type:"scale"},
+  {id:"Q09", q:"If you owned a Duo, how often do you think you would open it to use the big inner screen?", e:"The Duo makes the most sense if you would actually open it rather than mostly using the small outer screen.",
+   type:"custom", opts:[["A","Almost never"],["A-B","Occasionally"],["B","About half the time"],["B-C","Most of the time"],["C","Constantly"]]},
+  {id:"Q10", q:"How useful would it be if your phone could prop itself up for videos, FaceTime, photos, recipes, or a desk display?", e:"Duo’s hinge lets it stand at useful angles without a separate phone stand.", type:"scale"},
+  {id:"Q11", q:"How useful would StandBy be WITHOUT needing to plug the phone in?", e:"StandBy can show a clock, photos, weather, calendar, or widgets. Duo can enter StandBy on its inner or outer screen even while unplugged.", type:"scale"},
+  {id:"Q12", q:"Would you use an Apple Pencil on your phone for notes, signing, drawing, or marking up documents?", e:"Duo supports Apple Pencil (USB-C). The 18 Pro and Pro Max do not.",
+   type:"custom", opts:[["A","No"],["A-B","Probably not"],["B","Maybe"],["B-C","Probably"],["C","Definitely"]]},
+  {id:"Q13", q:"How much would a thicker phone when folded bother you?", e:"Duo is very thin when open, but because it folds in half it is thicker when closed.", type:"scale"},
+  {id:"Q14", q:"How much would a flexible inner screen, visible fold/crease, and hinge make you nervous?", e:"Apple designed Duo for durability, but a foldable still has more moving/flexible parts than a traditional iPhone.", type:"scale"},
+
+  // Battery/heat
+  {section:"3. Battery, heat & speed", subtitle:"You do not need to know benchmarks. Answer based on what annoys you today.",
+   id:"Q15", q:"How often does your current phone reach about 20% battery or less before you are done for the day?", e:"This is one of the strongest reasons to consider the Pro Max.",
+   type:"custom", opts:[["A","Almost never"],["A-B","Rarely"],["B","Sometimes"],["B-C","Often"],["C","Almost every day"]]},
+  {id:"Q16", q:"How important is getting the longest possible battery life?", e:"Apple rates the 18 Pro Max highest for typical mixed use. Duo battery life varies more depending on which display you use.", type:"scale"},
+  {id:"Q17", q:"How often does your current phone feel hot, dim its screen, or seem to slow down from heat?", e:"GPS, charging, gaming, video, hotspot use, camera use, and hot weather can cause this.",
+   type:"custom", opts:[["A","Never"],["A-B","Rarely"],["B","Sometimes"],["B-C","Often"],["C","Very often"]]},
+  {id:"Q18", q:"How important is staying cool during long, demanding use?", e:"This is “thermal performance.” It matters most during gaming, navigation, hotspot use, recording video, or heavy workloads.", type:"scale"},
+  {id:"Q19", q:"How often are you away from a charger for long stretches?", e:"Examples: work sites, travel days, school, sporting events, hiking, road trips, or long appointments.", type:"scale"},
+  {id:"Q20", q:"How important is faster charging when you only have a short time to plug in?", e:"The 18 Pro models are especially strong for quick wired top-ups; all three support faster 25W MagSafe/Qi2 wireless charging.", type:"scale"},
+
+  // Camera
+  {section:"4. Camera & video", subtitle:"No camera jargon required.",
+   id:"Q21", q:"How important is having the best overall camera system available?", e:"If photos and videos are a major priority, the Pro and Pro Max camera system has important advantages.", type:"scale"},
+  {id:"Q22", q:"How often do you want a CLEAR picture of something far away?", e:"Examples: sports from the stands, wildlife, concerts, a person on a stage, mountains, signs, or distant buildings. The Pro models have a dedicated long-distance camera.",
+   type:"custom", opts:[["A","Almost never"],["A-B","Rarely"],["B","Sometimes"],["B-C","Often"],["C","Very often"]]},
+  {id:"Q23", q:"How important are low-light photos and photos of moving people, pets, or sports?", e:"The Pro camera system is the safer choice for someone who wants the most capable photography setup.", type:"scale"},
+  {id:"Q24", q:"How much do you record high-quality video?", e:"Think family events, travel, sports, social content, school/work projects, or serious video creation.", type:"scale"},
+  {id:"Q25", q:"Do you use advanced photo/video tools such as RAW photos, ProRes, manual-style controls, or editing workflows?", e:"If you have never heard of these, choose A — that means they probably should not affect your decision.",
+   type:"custom", opts:[["A","Never / don’t know them"],["A-B","Almost never"],["B","Sometimes"],["B-C","Often"],["C","Very important to me"]]},
+
+  // Authentication & reliability
+  {section:"5. Unlocking, durability & daily convenience", subtitle:"Small details can become big daily annoyances.",
+   id:"Q26", q:"How important is Face ID — unlocking just by looking at your phone?", e:"18 Pro and Pro Max use Face ID. Duo uses Touch ID in the side button instead.", type:"scale"},
+  {id:"Q27", q:"How comfortable would you be using your fingerprint on the side button instead of Face ID?", e:"That is how Duo unlocks and approves Apple Pay.",
+   type:"custom", opts:[["A","I’d strongly dislike it"],["A-B","Prefer Face ID"],["B","Either is fine"],["B-C","Fingerprint sounds good"],["C","I prefer fingerprint"]]},
+  {id:"Q28", q:"How important is the customizable Action button?", e:"It can launch things like Silent Mode, Camera, Flashlight, Voice Memo, Translate, a Shortcut, and more. The 18 Pro models have it; Duo does not.", type:"scale"},
+  {id:"Q29", q:"How important is having the simplest, most proven physical design possible?", e:"Traditional phones have no hinge or folding inner screen. This matters if reliability is your top concern.", type:"scale"},
+  {id:"Q30", q:"How worried are you about buying Apple’s first-generation foldable iPhone?", e:"Even if it is covered by AppleCare, some people prefer to wait for later generations.", type:"scale"},
+  {id:"Q31", q:"How important is fitting normally on car wireless chargers and common phone mounts?", e:"Duo’s short, wider folded shape may fit or align differently on some fixed charging pads.", type:"scale"},
+  {id:"Q32", q:"How long do you normally keep a phone before replacing it?", e:"Keeping a phone 4–6 years gives long-term durability more weight.",
+   type:"custom", opts:[["A","About 1 year"],["A-B","1–2 years"],["B","2–3 years"],["B-C","3–4 years"],["C","4+ years"]]},
+
+  // Storage
+  {section:"6. Storage needs", subtitle:"All three models offer 256GB, 512GB, 1TB, and 2TB. These questions help choose the right amount.",
+   id:"Q33", q:"How much do you take photos and especially videos?", e:"4K video can use a lot of storage over time.", type:"scale"},
+  {id:"Q34", q:"How many large games, apps, or creative apps do you keep installed?", e:"Large games and professional apps can each use many gigabytes.",
+   type:"custom", opts:[["A","Very few"],["A-B","A few"],["B","Several"],["B-C","Many"],["C","A lot / huge games"]]},
+  {id:"Q35", q:"How much media do you download to keep OFFLINE?", e:"Examples: movies, TV episodes, music, podcasts, maps, files, or course material for when you have weak/no service.", type:"scale"},
+  {id:"Q36", q:"How strongly do you want to avoid managing or deleting storage for the next few years?", e:"If you never want to think about space, buying more storage up front can make sense.", type:"scale"},
+  {id:"Q37", q:"How much do you rely on cloud storage such as iCloud Photos, Google Photos, OneDrive, or streaming instead of keeping everything locally?", e:"More cloud use can reduce the amount of built-in phone storage you need.",
+   type:"custom", opts:[["A","Almost none"],["A-B","A little"],["B","Some"],["B-C","A lot"],["C","Almost everything"]]},
+
+  // Fit/preferences
+  {section:"7. What kind of upgrade do you want?", subtitle:"This is where preference matters.",
+   id:"Q38", q:"How important is having genuinely NEW technology that feels different from your current phone?", e:"Duo changes the physical way you use an iPhone. Pro and Pro Max are much more familiar.", type:"scale"},
+  {id:"Q39", q:"How important is getting the safest, least-compromised all-around choice?", e:"This means prioritizing battery, cameras, durability, familiar controls, and fewer first-generation tradeoffs.", type:"scale"},
+  {id:"Q40", q:"How much does price matter when choosing between the three?", e:"A higher answer means you care more about avoiding extra cost for features you may not use.", type:"scale"},
+  {id:"Q41", q:"Which description sounds most like you?", e:"There is no right answer.",
+   type:"custom3", opts:[["A","I want the familiar iPhone idea, just better"],["B","I’m in the middle"],["C","I want something that feels completely new"]]},
+  {id:"Q42", q:"Before seeing any assessment, which phone are you naturally leaning toward?", e:"This does not decide the answer; it just tells us your instinct.",
+   type:"custom3", opts:[["A","iPhone 18 Pro"],["B","iPhone 18 Pro Max"],["C","iPhone Duo"],["D","Truly undecided"]]}
+];
+
+const priorities = [
+  "Choose…","Battery life","Big screen","Smaller/lighter size","Multitasking","Camera quality",
+  "Clear long-distance zoom","Durability/reliability","New technology","Gaming",
+  "Cooling / less heat","Work or school productivity","Video watching","Apple Pencil",
+  "Face ID","StandBy / desk display","Fast charging","Value / lower price","Storage capacity",
+  "Keeping the phone for many years"
+];
+
+function escapeHTML(str){
+  return String(str).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+}
+
+function renderQuestion(item, index){
+  if(item.section){
+    const head = document.createElement("div");
+    head.className="section-title";
+    head.innerHTML=`<h2>${escapeHTML(item.section)}</h2><p>${escapeHTML(item.subtitle||"")}</p>`;
+    quiz.appendChild(head);
+  }
+  const card=document.createElement("section");
+  card.className="card";
+  card.id=item.id;
+  const opts=item.opts || SCALE.map(x=>[x.code,x.label]);
+  const gridClass=item.type==="custom3" ? "bubbles choices3 choiceLong" : "bubbles";
+  card.innerHTML=`
+    <div class="qnum">${item.id}</div>
+    <div class="question">${escapeHTML(item.q)}</div>
+    <div class="explain">${escapeHTML(item.e||"")}</div>
+    <div class="${gridClass}">
+      ${opts.map((o,i)=>`
+        <div class="bubble">
+          <input type="radio" id="${item.id}_${i}" name="${item.id}" value="${escapeHTML(o[0])}" data-label="${escapeHTML(o[1])}">
+          <label for="${item.id}_${i}">
+            <span class="code">${escapeHTML(o[0])}</span>
+            <span class="blabel">${escapeHTML(o[1])}</span>
+          </label>
+        </div>`).join("")}
+    </div>`;
+  quiz.appendChild(card);
+}
+
+const quiz=document.getElementById("quiz");
+// Questions are pre-rendered in the HTML for iPad/Safari reliability.
+
+document.querySelectorAll(".priority").forEach(sel=>{
+  sel.innerHTML=priorities.map(x=>`<option value="${escapeHTML(x==="Choose…"?"":x)}">${escapeHTML(x)}</option>`).join("");
+});
+
+function answeredCount(){
+  return questions.filter(q=>document.querySelector(`input[name="${q.id}"]:checked`)).length;
+}
+function updateProgress(){
+  const n=answeredCount();
+  const pct=Math.round(n/questions.length*100);
+  document.getElementById("progressBar").style.width=pct+"%";
+  document.getElementById("progressText").textContent=`${pct}% answered`;
+}
+document.addEventListener("change", updateProgress);
+
+function val(id){return document.getElementById(id).value.trim();}
+function selected(qid){
+  const el=document.querySelector(`input[name="${qid}"]:checked`);
+  return el ? {code:el.value,label:el.dataset.label} : null;
+}
+
+function validate(){
+  const missing=[];
+  if(!val("name")) missing.push("name");
+  if(!val("currentPhone")) missing.push("current phone model");
+  if(!val("storageTotal")) missing.push("current storage capacity");
+  const unanswered=questions.filter(q=>!selected(q.id));
+  if(unanswered.length) missing.push(`${unanswered.length} quiz question${unanswered.length===1?"":"s"}`);
+  const ps=[val("p1"),val("p2"),val("p3")];
+  if(ps.some(x=>!x)) missing.push("all 3 top priorities");
+  const chosen=ps.filter(Boolean);
+  if(new Set(chosen).size!==chosen.length) missing.push("3 different priorities (no duplicates)");
+  return missing;
+}
+
+function buildText(){
+  const lines=[];
+  lines.push("IPHONE FAMILY FIT QUIZ — PLAIN TEXT EXPORT");
+  lines.push("Quiz version: 2026-09-12");
+  lines.push("");
+  lines.push("PERSON");
+  lines.push(`Name: ${val("name")}`);
+  lines.push(`Current phone: ${val("currentPhone")}`);
+  lines.push(`Current phone size: ${val("currentSize") || "Not provided"}`);
+  lines.push(`Exact screen size: ${val("exactSize") || "Not provided"}`);
+  lines.push(`Current storage capacity: ${val("storageTotal")}`);
+  lines.push(`Current storage used: ${val("storageUsed") || "Not provided"}`);
+  lines.push(`Battery Health: ${val("batteryHealth") || "Not provided"}`);
+  lines.push(`Main use: ${val("mainUse") || "Not provided"}`);
+  lines.push("");
+  lines.push("ANSWERS");
+  questions.forEach(q=>{
+    const s=selected(q.id);
+    lines.push(`${q.id}: ${s ? s.code : "—"} | ${s ? s.label : "Unanswered"} | ${q.q}`);
+  });
+  lines.push("");
+  lines.push("TOP 3 PRIORITIES");
+  lines.push(`1. ${val("p1") || "—"}`);
+  lines.push(`2. ${val("p2") || "—"}`);
+  lines.push(`3. ${val("p3") || "—"}`);
+  lines.push("");
+  lines.push("OTHER NOTES");
+  lines.push(val("notes") || "None");
+  lines.push("");
+  lines.push("ASSESSMENT REQUEST");
+  lines.push("Please assess: iPhone 18 Pro vs iPhone 18 Pro Max vs iPhone Duo, recommended storage size, important tradeoffs, and whether upgrading from the current phone is worthwhile.");
+  return lines.join("\n");
+}
+
+document.getElementById("buildBtn").addEventListener("click",()=>{
+  const missing=validate();
+  const eb=document.getElementById("errorBox");
+  if(missing.length){
+    eb.style.display="block";
+    eb.innerHTML=`Please finish: <b>${missing.map(escapeHTML).join(", ")}</b>.`;
+    eb.scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
+  eb.style.display="none";
+  const text=buildText();
+  document.getElementById("resultText").textContent=text;
+  const rb=document.getElementById("resultBox");
+  rb.style.display="block";
+  rb.scrollIntoView({behavior:"smooth"});
+});
+
+document.getElementById("copyBtn").addEventListener("click",async()=>{
+  const text=document.getElementById("resultText").textContent;
+  try{
+    await navigator.clipboard.writeText(text);
+    document.getElementById("copyBtn").textContent="Copied ✓";
+    setTimeout(()=>document.getElementById("copyBtn").textContent="Copy Results",1500);
+  }catch(e){
+    const range=document.createRange();
+    range.selectNode(document.getElementById("resultText"));
+    window.getSelection().removeAllRanges();window.getSelection().addRange(range);
+    alert("Press Copy in your browser’s selection menu.");
+  }
+});
+
+document.getElementById("shareBtn").addEventListener("click",async()=>{
+  const text=document.getElementById("resultText").textContent;
+  if(navigator.share){
+    try{await navigator.share({title:"My iPhone Family Quiz Results",text});}catch(e){}
+  }else{
+    alert("Direct sharing is not available in this browser. Use Copy Results instead.");
+  }
+});
+
+document.getElementById("downloadBtn").addEventListener("click",()=>{
+  const text=document.getElementById("resultText").textContent;
+  const safe=(val("name")||"iphone-quiz").replace(/[^a-z0-9_-]+/gi,"-");
+  const blob=new Blob([text],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`${safe}-iphone-quiz-results.txt`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+});
+
+document.getElementById("clearBtn").addEventListener("click",()=>{
+  if(!confirm("Clear every answer and start over?")) return;
+  document.querySelectorAll('input[type="text"], textarea').forEach(x=>x.value="");
+  document.querySelectorAll('input[type="radio"]').forEach(x=>x.checked=false);
+  document.querySelectorAll("select").forEach(x=>x.selectedIndex=0);
+  document.getElementById("resultBox").style.display="none";
+  document.getElementById("errorBox").style.display="none";
+  updateProgress();
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+updateProgress();
+</script>
+</body>
+</html>
