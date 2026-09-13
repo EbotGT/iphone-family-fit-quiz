@@ -21,7 +21,7 @@
     --radius:22px;
   }
   *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
   body{
     margin:0;
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -71,6 +71,7 @@
     padding:20px;
     box-shadow:0 3px 14px rgba(0,0,0,.035);
     margin:14px 0;
+    scroll-margin-top:66px;
   }
   .guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .guide{
@@ -99,6 +100,8 @@
     border-radius:13px;
     padding:13px 12px;
     font:inherit;
+    /* Prevent iPhone Safari from zooming into ordinary form fields. */
+    font-size:16px;
     font-weight:500;
     color:var(--text);
     outline:none;
@@ -113,7 +116,18 @@
     gap:8px;
     margin-top:14px;
   }
-  .bubble input{position:absolute;opacity:0;pointer-events:none}
+  /* Keep the hidden radio from inheriting the full-width form-field size.
+     The label is the visible, tappable bubble. */
+  .bubble input{
+    position:absolute;
+    width:1px;
+    height:1px;
+    margin:0;
+    padding:0;
+    border:0;
+    opacity:0;
+    pointer-events:none;
+  }
   .bubble label{
     min-height:72px;
     border:1.5px solid #c7c7cc;
@@ -183,6 +197,17 @@
     display:none;background:#fff2f2;border:1px solid #ffb6b6;color:#8b0000;
     border-radius:14px;padding:12px 14px;margin:12px 0;font-weight:650;
   }
+  .errorbox p{margin:0}
+  .unanswered-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .unanswered-links a{
+    display:inline-flex;align-items:center;min-height:36px;padding:5px 10px;
+    border-radius:999px;background:#fff;border:1px solid #ef9a9a;color:#8b0000;
+    font-weight:800;text-decoration:none;
+  }
+  .lookup-help{margin:12px 0 16px}
+  .lookup-help summary{font-size:16px}
+  .lookup-help ul{margin:10px 0 0;padding-left:22px}
+  .lookup-help li+li{margin-top:7px}
   .footer{color:var(--muted);font-size:12px;margin-top:28px;text-align:center}
   .priority-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
   @media (max-width:700px){
@@ -193,6 +218,25 @@
     .choices4,.choices6{grid-template-columns:repeat(2,minmax(0,1fr))}
     .card{padding:17px 14px}
     .wrap{padding-left:10px;padding-right:10px}
+  }
+  /* iPhone portrait: choose easy-to-read, full-width answer bubbles over
+     fitting several small controls across a narrow screen. */
+  @media (max-width:480px){
+    .wrap{padding:12px 10px 48px}
+    .hero{border-radius:22px;padding:22px 16px}
+    h1{font-size:32px}
+    h2{font-size:23px}
+    .lede{font-size:16px}
+    .card{border-radius:18px;padding:16px 14px;margin:12px 0}
+    .question{font-size:18px}
+    .bubbles,.choices3,.choices4,.choices6{grid-template-columns:1fr}
+    .bubbles .bubble:last-child:nth-child(odd){grid-column:auto}
+    .bubble label,.choiceLong label{min-height:62px;padding:8px 12px;flex-direction:row;gap:10px;text-align:left;justify-content:flex-start}
+    .blabel{font-size:13px;line-height:1.2;margin-top:0}
+    .actions{display:grid;grid-template-columns:1fr;gap:9px}
+    .actions button{width:100%;min-height:48px}
+    #progressText{min-width:80px;font-size:12px}
+    .unanswered-links a{min-height:42px;padding:7px 12px}
   }
 </style>
 </head>
@@ -280,6 +324,20 @@
 
 <section class="card" id="profile">
   <h2>About you & your current phone</h2>
+  <div class="callout lookup-help">
+    <b>Need help finding these details?</b>
+    <details open>
+      <summary>How to find phone model, storage, and battery health on an iPhone</summary>
+      <ul>
+        <li><b>Phone model:</b> Open <b>Settings</b> → <b>General</b> → <b>About</b>. Look for <b>Model Name</b> and type that here, such as “iPhone 15.”</li>
+        <li><b>Storage capacity:</b> In <b>Settings</b> → <b>General</b> → <b>About</b>, look for <b>Capacity</b>. You can also find it in <b>Settings</b> → <b>General</b> → <b>iPhone Storage</b>.</li>
+        <li><b>Storage used:</b> Open <b>Settings</b> → <b>General</b> → <b>iPhone Storage</b>. The amount used is shown at the top of that screen.</li>
+        <li><b>Battery Health:</b> Open <b>Settings</b> → <b>Battery</b> → <b>Battery Health</b> (or <b>Battery Health & Charging</b> on some iPhones). Enter the percentage beside <b>Maximum Capacity</b>.</li>
+        <li><b>Screen size:</b> It usually is not shown in Settings. Pick the closest general size, or choose <b>“I don’t know”</b>; the exact size is optional.</li>
+      </ul>
+      <p class="small"><b>Using Android?</b> Open <b>Settings</b> → <b>About phone</b> to find the model name and storage. It is okay to leave optional items blank when you cannot find them.</p>
+    </details>
+  </div>
   <div class="field-grid">
     <label class="field">Your name <span class="required-star">*</span>
       <input id="name" type="text" placeholder="First name" autocomplete="name" />
@@ -2391,10 +2449,12 @@ function validate(){
   const unanswered=questions.filter(q=>!selected(q.id));
   if(unanswered.length) missing.push(`${unanswered.length} quiz question${unanswered.length===1?"":"s"}`);
   const ps=[val("p1"),val("p2"),val("p3")];
-  if(ps.some(x=>!x)) missing.push("all 3 top priorities");
+  ps.forEach((priority,index)=>{
+    if(!priority) missing.push(`top priority #${index+1}`);
+  });
   const chosen=ps.filter(Boolean);
   if(new Set(chosen).size!==chosen.length) missing.push("3 different priorities (no duplicates)");
-  return missing;
+  return {missing,unanswered};
 }
 
 function buildText(){
@@ -2432,11 +2492,14 @@ function buildText(){
 }
 
 document.getElementById("buildBtn").addEventListener("click",()=>{
-  const missing=validate();
+  const {missing,unanswered}=validate();
   const eb=document.getElementById("errorBox");
   if(missing.length){
     eb.style.display="block";
-    eb.innerHTML=`Please finish: <b>${missing.map(escapeHTML).join(", ")}</b>.`;
+    const questionLinks=unanswered.length
+      ? `<div><b>Unanswered question${unanswered.length===1?"":"s"}:</b><div class="unanswered-links">${unanswered.map(q=>`<a href="#${q.id}">${q.id}</a>`).join("")}</div></div>`
+      : "";
+    eb.innerHTML=`<p>Please finish: <b>${missing.map(escapeHTML).join(", ")}</b>.</p>${questionLinks}`;
     eb.scrollIntoView({behavior:"smooth",block:"center"});
     return;
   }
